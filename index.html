@@ -36,10 +36,13 @@
       height: auto;
     }
     .message {
-      font-size: 24px;
-      color: green;
+      font-size: 20px;
+      color: #d9534f;
       font-weight: bold;
       margin: 20px 0;
+    }
+    .success {
+      color: green;
     }
     .trophy {
       width: 200px;
@@ -58,10 +61,15 @@
     .btn:hover {
       background: #45a049;
     }
+    .scoreboard {
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
   </style>
 </head>
 <body>
   <h1>成語配對遊戲</h1>
+  <div class="scoreboard">目前分數：<span id="score">0</span>/20</div>
   <div id="game" class="game-area"></div>
   <div id="message" class="message"></div>
   <img id="trophy" class="trophy" src="trophy.png" alt="大獎杯">
@@ -113,11 +121,10 @@
 
     let currentLevel = 0;
     let score = 0;
+    let selected = null;
 
     function renderLevel() {
       const game = document.getElementById('game');
-      const level = levels[currentLevel];
-      const pairs = level.pairs;
       const message = document.getElementById('message');
       const nextBtn = document.getElementById('nextBtn');
       const trophy = document.getElementById('trophy');
@@ -129,56 +136,66 @@
       trophy.style.display = 'none';
       restartBtn.style.display = 'none';
       endBtn.style.display = 'none';
+      document.getElementById('score').textContent = score;
 
       game.innerHTML = '';
-      let correct = 0;
+      selected = null;
 
-      let targets = [...pairs];
-      let choices = [...pairs];
-      choices.sort(() => Math.random() - 0.5);
+      const level = levels[currentLevel];
+      const targets = [...level.pairs];
+      const options = [...level.pairs];
+      targets.sort(() => Math.random() - 0.5);
+      options.sort(() => Math.random() - 0.5);
+
+      const optionContainer = document.createElement('div');
+      optionContainer.className = 'options';
+      options.forEach((opt, idx) => {
+        const div = document.createElement('div');
+        div.className = 'option';
+        div.textContent = opt.text;
+        div.onclick = () => {
+          selected = opt;
+        };
+        optionContainer.appendChild(div);
+      });
+      game.appendChild(optionContainer);
 
       const pairContainer = document.createElement('div');
       pairContainer.className = 'pairs';
-      targets.forEach((p, i) => {
+      targets.forEach((target, idx) => {
         const div = document.createElement('div');
         div.className = 'pair';
-        div.dataset.index = i;
-        div.innerHTML = level.type === 'image' ? `<img src='${p.img}.png'>` : p.match;
+        div.dataset.text = target.text;
+        div.innerHTML = level.type === 'image' ? `<img src='${target.img}.png'>` : target.match;
+        div.onclick = () => {
+          if (selected) {
+            if (selected.text === target.text) {
+              message.innerHTML = '<span class="success">答對了！</span>';
+              div.remove();
+              const selectedDiv = Array.from(optionContainer.children).find(c => c.textContent === selected.text);
+              if (selectedDiv) selectedDiv.remove();
+              score++;
+              document.getElementById('score').textContent = score;
+              if (optionContainer.children.length === 0) {
+                if (currentLevel < levels.length - 1) {
+                  message.innerHTML = '非常好！你已成功過關！';
+                  nextBtn.style.display = 'inline-block';
+                } else {
+                  message.innerHTML = '恭喜你取得滿分！';
+                  trophy.style.display = 'block';
+                  restartBtn.style.display = 'inline-block';
+                  endBtn.style.display = 'inline-block';
+                }
+              }
+            } else {
+              message.innerHTML = '選錯了，請重新作答。';
+            }
+            selected = null;
+          }
+        };
         pairContainer.appendChild(div);
       });
       game.appendChild(pairContainer);
-
-      const choiceContainer = document.createElement('div');
-      choiceContainer.className = 'options';
-      choices.forEach((c, i) => {
-        const div = document.createElement('div');
-        div.className = 'option';
-        div.textContent = c.text;
-        div.onclick = () => {
-          const selected = document.querySelectorAll('.pair');
-          selected.forEach((s) => {
-            if (!s.classList.contains('matched') && s.dataset.index == i) {
-              s.classList.add('matched');
-              div.classList.add('matched');
-              correct++;
-              score++;
-            }
-          });
-          if (correct === pairs.length) {
-            if (currentLevel < levels.length - 1) {
-              message.innerHTML = '非常好！你已成功過關！';
-              nextBtn.style.display = 'inline-block';
-            } else {
-              message.innerHTML = '恭喜你取得滿分！';
-              trophy.style.display = 'block';
-              restartBtn.style.display = 'inline-block';
-              endBtn.style.display = 'inline-block';
-            }
-          }
-        };
-        choiceContainer.appendChild(div);
-      });
-      game.appendChild(choiceContainer);
     }
 
     document.getElementById('nextBtn').onclick = () => {
