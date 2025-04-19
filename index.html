@@ -37,7 +37,7 @@
       height: auto;
     }
     .selected {
-      border-color: #4CAF50;
+      border-color: #4CAF50 !important;
       box-shadow: 0 0 10px #4CAF50;
     }
     .message {
@@ -175,9 +175,9 @@
         div.dataset.text = target.text;
         div.innerHTML = level.type === 'image' ? `<img src='${target.img}.png'>` : target.match;
         div.onclick = () => {
+          Array.from(pairContainer.children).forEach(el => el.classList.remove('selected'));
+          div.classList.add('selected');
           if (selected) {
-            Array.from(pairContainer.children).forEach(el => el.classList.remove('selected'));
-            div.classList.add('selected');
             if (selected.text === target.text) {
               message.innerHTML = '<span class="success">答對了！</span>';
               div.remove();
