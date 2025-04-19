@@ -30,10 +30,15 @@
       padding: 10px;
       width: 150px;
       cursor: pointer;
+      transition: all 0.3s;
     }
     .pair img {
       width: 100%;
       height: auto;
+    }
+    .selected {
+      border-color: #4CAF50;
+      box-shadow: 0 0 10px #4CAF50;
     }
     .message {
       font-size: 20px;
@@ -154,6 +159,8 @@
         div.className = 'option';
         div.textContent = opt.text;
         div.onclick = () => {
+          Array.from(optionContainer.children).forEach(el => el.classList.remove('selected'));
+          div.classList.add('selected');
           selected = opt;
         };
         optionContainer.appendChild(div);
@@ -169,6 +176,8 @@
         div.innerHTML = level.type === 'image' ? `<img src='${target.img}.png'>` : target.match;
         div.onclick = () => {
           if (selected) {
+            Array.from(pairContainer.children).forEach(el => el.classList.remove('selected'));
+            div.classList.add('selected');
             if (selected.text === target.text) {
               message.innerHTML = '<span class="success">答對了！</span>';
               div.remove();
@@ -191,6 +200,8 @@
               message.innerHTML = '選錯了，請重新作答。';
             }
             selected = null;
+            Array.from(optionContainer.children).forEach(el => el.classList.remove('selected'));
+            Array.from(pairContainer.children).forEach(el => el.classList.remove('selected'));
           }
         };
         pairContainer.appendChild(div);
