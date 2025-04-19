@@ -14,26 +14,27 @@
     }
     .game-area {
       margin: 20px auto;
-      max-width: 800px;
+      max-width: 900px;
     }
     .pairs, .options {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       margin-bottom: 20px;
+      gap: 10px;
     }
     .pair, .option {
       background: #fff;
       border: 2px solid #ccc;
       border-radius: 8px;
-      margin: 10px;
-      padding: 10px;
-      width: 150px;
+      padding: 10px 15px;
       cursor: pointer;
       transition: all 0.3s;
+      white-space: nowrap;
+      display: inline-block;
     }
     .pair img {
-      width: 100%;
+      width: 150px;
       height: auto;
     }
     .selected {
@@ -154,12 +155,12 @@
 
       const optionContainer = document.createElement('div');
       optionContainer.className = 'options';
-      options.forEach((opt, idx) => {
+      options.forEach((opt) => {
         const div = document.createElement('div');
         div.className = 'option';
         div.textContent = opt.text;
         div.onclick = () => {
-          Array.from(optionContainer.children).forEach(el => el.classList.remove('selected'));
+          document.querySelectorAll('.option, .pair').forEach(el => el.classList.remove('selected'));
           div.classList.add('selected');
           selected = opt;
         };
@@ -169,13 +170,13 @@
 
       const pairContainer = document.createElement('div');
       pairContainer.className = 'pairs';
-      targets.forEach((target, idx) => {
+      targets.forEach((target) => {
         const div = document.createElement('div');
         div.className = 'pair';
         div.dataset.text = target.text;
         div.innerHTML = level.type === 'image' ? `<img src='${target.img}.png'>` : target.match;
         div.onclick = () => {
-          Array.from(pairContainer.children).forEach(el => el.classList.remove('selected'));
+          document.querySelectorAll('.pair').forEach(el => el.classList.remove('selected'));
           div.classList.add('selected');
           if (selected) {
             if (selected.text === target.text) {
@@ -200,8 +201,7 @@
               message.innerHTML = '選錯了，請重新作答。';
             }
             selected = null;
-            Array.from(optionContainer.children).forEach(el => el.classList.remove('selected'));
-            Array.from(pairContainer.children).forEach(el => el.classList.remove('selected'));
+            document.querySelectorAll('.option, .pair').forEach(el => el.classList.remove('selected'));
           }
         };
         pairContainer.appendChild(div);
